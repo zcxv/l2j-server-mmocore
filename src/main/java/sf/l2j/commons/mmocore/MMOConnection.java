@@ -104,7 +104,7 @@ public class MMOConnection<T extends MMOClient> implements NetworkConnection {
 		return _port;
 	}
 
-	final void close() throws IOException {
+	final void closeSocket() throws IOException {
 		_socket.close();
 	}
 
@@ -188,6 +188,22 @@ public class MMOConnection<T extends MMOClient> implements NetworkConnection {
 		try {
 			_selectionKey.interestOps(_selectionKey.interestOps() & ~SelectionKey.OP_WRITE);
 		} catch (CancelledKeyException e) {
+		}
+
+		_selectorThread.closeConnection(this);
+	}
+
+	@Override
+	public void close() {
+		if (_pendingClose) {
+			return;
+		}
+
+		synchronized (getSendQueue()) {
+			if (!_pendingClose) {
+				_pendingClose = true;
+				_sendQueue.clear();
+			}
 		}
 
 		_selectorThread.closeConnection(this);

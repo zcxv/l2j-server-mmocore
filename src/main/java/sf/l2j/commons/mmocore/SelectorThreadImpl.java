@@ -540,7 +540,7 @@ public final class SelectorThreadImpl<T extends MMOClient> extends Thread implem
 		} finally {
 			try {
 				// close socket and the SocketChannel
-				con.close();
+				con.closeSocket();
 			} catch (IOException e) {
 				// ignore, we are closing anyway
 			} finally {
